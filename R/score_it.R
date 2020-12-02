@@ -12,7 +12,7 @@ crps_score <- function(forecast, target,
   variables <- c(grouping_variables, target_variables, reps_col)
   
   forecast <- forecast %>% select(any_of(variables))
-  target <- target %>% select(any_of(variables)) 
+  target <- target %>% select(any_of(variables))
   
   ## Teach crps to treat any NA observations as NA scores:
   scoring_fn <- function(y, dat) {

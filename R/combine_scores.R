@@ -1,0 +1,1 @@
+list.files("/efi_neon_challenge/scores", recursive = TRUE, full.names = TRUE, pattern = "[.]csv") %>% map_dfr(readr::read_csv, col_types = list(id = readr::col_character(), score = readr::col_double()), .id = "team")
