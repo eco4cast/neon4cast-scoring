@@ -1,3 +1,5 @@
+library(aws.s3)
+
 source("R/score_it.R")
 source("R/download_bucket.R")
 source("R/publish.R")
@@ -8,6 +10,11 @@ Sys.setenv("AWS_DEFAULT_REGION" = "data",
            "AWS_S3_ENDPOINT" = "ecoforecast.org")
 targets <- download_bucket("targets")
 forecasts <- download_bucket("forecasts")
+submissions <- download_bucket("submissions")
+
+submission_files <- submissions[grepl("aquatics-", submissions)]
+submission_files <- submissions[grepl("beetles-", submissions)]
+submission_files <- submissions[grepl("terrestrial-", submissions)]
 
 
 ## aquatics
