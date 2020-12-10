@@ -3,7 +3,8 @@ library(tidyverse)
 library(scoringRules)
 
 ## Generic scoring function.
-crps_score <- function(forecast, target,
+crps_score <- function(forecast, 
+                       target,
                        grouping_variables = c("siteID", "time"),
                        target_variables = c("richness", "abundance"),
                        reps_col = "ensemble"){
@@ -11,7 +12,7 @@ crps_score <- function(forecast, target,
   ## drop extraneous columns && make grouping vars into chr ids (i.e. not dates)
   variables <- c(grouping_variables, target_variables, reps_col)
   
-  forecast <- forecast %>% select(any_of(variables))
+  forecast <- forecast %>% dplyr::select(any_of(variables))
   target <- target %>% select(any_of(variables))
   
   ## Teach crps to treat any NA observations as NA scores:
