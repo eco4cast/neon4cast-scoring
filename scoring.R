@@ -12,9 +12,6 @@ targets <- download_bucket("targets")
 forecasts <- download_bucket("forecasts")
 submissions <- download_bucket("submissions")
 
-submission_files <- submissions[grepl("aquatics-", submissions)]
-submission_files <- submissions[grepl("beetles-", submissions)]
-submission_files <- submissions[grepl("terrestrial-", submissions)]
 
 
 ## aquatics
@@ -53,3 +50,20 @@ publish(code = c("scoring.R","R/score_it.R", "R/download_bucket.R"),
         data_out = score_files,
         prefix = "terrestrial/",
         bucket = "scores")
+
+
+
+
+## phenology
+targets_file <- targets[grepl("phenology-", targets)]
+forecast_files <- forecasts[grepl("phenology-", forecasts)]
+score_files <- score_it(targets_file, forecast_files,
+                        target_variables = c("gcc_90"))
+
+publish(code = c("scoring.R","R/score_it.R", "R/download_bucket.R"),
+        data_in = c(targets_file, forecast_files),
+        data_out = score_files,
+        prefix = "phenology/",
+        bucket = "scores")
+
+

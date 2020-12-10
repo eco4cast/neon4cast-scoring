@@ -2,11 +2,20 @@
 library(tidyverse)
 library(scoringRules)
 
+source("R/read_forecast.R")
+
 ## Generic scoring function.
 crps_score <- function(forecast, 
                        target,
                        grouping_variables = c("siteID", "time"),
-                       target_variables = c("richness", "abundance"),
+                       target_variables = c("oxygen", 
+                                            "temperature", 
+                                            "richness",
+                                            "abundance", 
+                                            "nee",
+                                            "le", 
+                                            "vswc",
+                                            "gcc_90"),
                        reps_col = "ensemble"){
   
   ## drop extraneous columns && make grouping vars into chr ids (i.e. not dates)
@@ -43,19 +52,24 @@ crps_score <- function(forecast,
 }
 
 
+score_filenames <- function(forecast_files){
+  f_name <- tools::file_path_sans_ext(paste0("scores-",
+         basename(forecast_files)), compression = TRUE)
+  file.path("scores", paste0(f_name, ".csv.gz"))
+}
+
+
 score_it <- function(targets_file, 
                      forecast_files, 
                      target_variables,
                      grouping_variables = c("time", "siteID"),
                      reps_col = "ensemble",
-                     score_files = file.path("scores", 
-                                             paste0("scores-",
-                                                    basename(forecast_files)))
+                     score_files = score_filenames(forecast_files)
 ){
   
   ## Read in data and compute scores!
-  target <- read_csv(targets_file)
-  forecasts <- lapply(forecast_files, read_csv, guess_max = 1e5)
+  target <- read_forecast(targets_file)
+  forecasts <- lapply(forecast_files, read_forecast)
   scores <- lapply(forecasts, 
                    crps_score, 
                    target = target,  
@@ -67,3 +81,6 @@ score_it <- function(targets_file,
   purrr::walk2(scores, score_files, readr::write_csv)
   invisible(score_files)
 }
+
+
+
