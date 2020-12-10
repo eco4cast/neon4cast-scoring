@@ -1,6 +1,7 @@
 
 
 read_forecast <- function(file_in, 
+                          grouping_variables = c("siteID", "time"),
                           target_variables = c("oxygen", 
                                                "temperature", 
                                                "richness",
@@ -9,6 +10,7 @@ read_forecast <- function(file_in,
                                                "le", 
                                                "vswc",
                                                "gcc_90"),
+                          reps_col = "ensemble",
                           ...){
   
 
@@ -24,7 +26,8 @@ read_forecast <- function(file_in,
       time <- ncdf4::ncvar_get(nc, "time")
       tustr<-strsplit(ncdf4::ncatt_get(nc, varid = "time", "units")$value, " ")
       time <-lubridate::as_date(time,origin=unlist(tustr)[3])
-      team <- ncdf4::ncatt_get(nc, varid = 0, "forecast_project_id")$value
+      
+
       targets <- names(nc$var)[which(names(nc$var) %in% target_variables)]
       combined_forecast <- NULL
       for(j in 1:length(targets)){
@@ -34,7 +37,7 @@ read_forecast <- function(file_in,
           d <- cbind(time, as.data.frame(tmp))
           names(d) <- c("time", seq(1,dim(tmp)[2]))
           d <- d %>%
-            tidyr::pivot_longer(-time, names_to = "ensemble", values_to = "value") %>%
+            tidyr::pivot_longer(-time, names_to = reps_col, values_to = "value") %>%
             dplyr::mutate(siteID = siteID[i],
                           variable = targets[j])
           combined_forecast <- rbind(combined_forecast, d)
