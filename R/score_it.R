@@ -2,6 +2,8 @@
 library(tidyverse)
 library(scoringRules)
 
+source("R/read_forecast.R")
+
 ## Generic scoring function.
 crps_score <- function(forecast, target,
                        grouping_variables = c("siteID", "time"),
@@ -53,8 +55,8 @@ score_it <- function(targets_file,
 ){
   
   ## Read in data and compute scores!
-  target <- read_csv(targets_file)
-  forecasts <- lapply(forecast_files, read_csv, guess_max = 1e5)
+  target <- read_forecast(targets_file)
+  forecasts <- lapply(forecast_files, read_forecast)
   scores <- lapply(forecasts, 
                    crps_score, 
                    target = target,  
@@ -66,3 +68,6 @@ score_it <- function(targets_file,
   purrr::walk2(scores, score_files, readr::write_csv)
   invisible(score_files)
 }
+
+
+
