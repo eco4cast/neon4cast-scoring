@@ -26,7 +26,14 @@ read_forecast <- function(file_in,
       time <- ncdf4::ncvar_get(nc, "time")
       tustr<-strsplit(ncdf4::ncatt_get(nc, varid = "time", "units")$value, " ")
       time <-lubridate::as_date(time,origin=unlist(tustr)[3])
-      
+      t_string <- strsplit(ncdf4::ncatt_get(nc, varid = "time", "units")$value, " ")[[1]]
+      if(t_string[1] == "days"){
+        tustr<-strsplit(ncdf4::ncatt_get(nc, varid = "time", "units")$value, " ")
+        time <-lubridate::as_date(time,origin=unlist(tustr)[3])
+      }else{
+        tustr <- lubridate::as_datetime(strsplit(ncdf4::ncatt_get(nc, varid = "time", "units")$value, " ")[[1]][3])
+        time <- as.POSIXct.numeric(time, origin = tustr)
+      } 
 
       targets <- names(nc$var)[which(names(nc$var) %in% target_variables)]
       combined_forecast <- NULL

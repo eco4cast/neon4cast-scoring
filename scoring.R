@@ -1,10 +1,12 @@
+remotes::install_deps()
+
 library(aws.s3)
 
 source("R/score_it.R")
 source("R/download_bucket.R")
 source("R/publish.R")
 
-## We'll read the files over the AWS API, though we could also read them directly from disk on the serve
+## We'll read the files over the AWS API, though we could als o read them directly from disk on the serve
 dir.create("scores")
 Sys.setenv("AWS_DEFAULT_REGION" = "data",
            "AWS_S3_ENDPOINT" = "ecoforecast.org")
@@ -50,9 +52,6 @@ publish(code = c("scoring.R","R/score_it.R", "R/download_bucket.R"),
         data_out = score_files,
         prefix = "terrestrial/",
         bucket = "scores")
-
-
-
 
 ## phenology
 targets_file <- targets[grepl("phenology-", targets)]
