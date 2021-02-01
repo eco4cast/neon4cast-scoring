@@ -12,9 +12,6 @@ read_forecast <- function(file_in,
                                                "gcc_90"),
                           reps_col = "ensemble",
                           ...){
-  
-  
-
     print(file_in)
     if(any(vapply(c("[.]csv", "[.]csv\\.gz"), grepl, logical(1), file_in))){  
       # if file is csv zip file
@@ -57,6 +54,8 @@ read_forecast <- function(file_in,
         tidyr::pivot_wider(names_from = variable, values_from = value)
       
       out <- combined_forecast
+    }else{
+      out <- NA
     }
   
   out

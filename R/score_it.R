@@ -19,7 +19,6 @@ crps_score <- function(forecast,
                        reps_col = c("ensemble")){
   
   
-  
   ## drop extraneous columns && make grouping vars into chr ids (i.e. not dates)
   
   if("ensemble" %in% colnames(forecast)){ 
@@ -81,7 +80,6 @@ crps_score <- function(forecast,
                 .groups = "drop")
     
   }
-  
 }
 
 
