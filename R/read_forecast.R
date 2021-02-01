@@ -13,11 +13,13 @@ read_forecast <- function(file_in,
                           reps_col = "ensemble",
                           ...){
   
+  
 
-    
+    print(file_in)
     if(any(vapply(c("[.]csv", "[.]csv\\.gz"), grepl, logical(1), file_in))){  
       # if file is csv zip file
       out <- read_csv(file_in, guess_max = 1e6, ...)
+      
       
     } else if(grepl("[.]nc", file_in)){ #if file is nc
       

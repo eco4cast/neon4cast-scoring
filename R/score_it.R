@@ -18,8 +18,17 @@ crps_score <- function(forecast,
                                             "gcc_90"),
                        reps_col = c("ensemble")){
   
+  
+  
   ## drop extraneous columns && make grouping vars into chr ids (i.e. not dates)
-  variables <- c(grouping_variables, target_variables, reps_col)
+  
+  if("ensemble" %in% colnames(forecast)){ 
+    reps_col <- "ensemble"
+    variables <- c(grouping_variables, target_variables, reps_col)
+  }else  if("statistic" %in% colnames(forecast)){ 
+    reps_col <- "statistic"
+    variables <- c(grouping_variables, target_variables, reps_col) 
+  }
   
   forecast <- forecast %>% dplyr::select(any_of(variables))
   target <- target %>% select(any_of(variables))
@@ -29,8 +38,8 @@ crps_score <- function(forecast,
     tryCatch(scoringRules::crps_sample(y, dat), error = function(e) NA_real_, finally = NA_real_)
   }
   
-  scoring_fn_stat <- function(y, dat) {
-    tryCatch(scoringRules::crps_norm(y, mean = dat$mean, sd = dat$sd), error = function(e) NA_real_, finally = NA_real_)
+  scoring_fn_stat <- function(y, mean, sd) {
+    tryCatch(scoringRules::crps_norm(y, mean = mean, sd = sd), error = function(e) NA_real_, finally = NA_real_)
   }
   
   ## Make tables into long format
@@ -40,26 +49,45 @@ crps_score <- function(forecast,
                  values_to = "observed") %>%
     tidyr::unite("id", -all_of("observed"))
   
-  forecast_long <- forecast %>% 
-    pivot_longer(any_of(target_variables), 
-                 names_to = "target", 
-                 values_to = "predicted") %>%
-    unite("id", -all_of(c(reps_col, "predicted")))
-  
-  
-  ## Left-join will keep only the rows for which site,month,year of the target match the predicted
-
-  inner_join(forecast_long, target_long, by = c("id"))  %>% 
-    group_by(id) %>% 
-    summarise(score = scoring_fn_ensemble(observed[[1]], predicted),
-              .groups = "drop")
+  if(reps_col == "ensemble"){
+    
+    forecast_long <- forecast %>% 
+      pivot_longer(any_of(target_variables), 
+                   names_to = "target", 
+                   values_to = "predicted") %>%
+      unite("id", -all_of(c(reps_col, "predicted"))) 
+    
+    ## Left-join will keep only the rows for which site,month,year of the target match the predicted
+    
+    inner_join(forecast_long, target_long, by = c("id"))  %>% 
+      group_by(id) %>% 
+      summarise(score = scoring_fn_ensemble(observed[[1]], predicted),
+                .groups = "drop")
+    
+  }else{
+    
+    forecast_long <- forecast %>% 
+      pivot_longer(any_of(target_variables), 
+                   names_to = "target", 
+                   values_to = "predicted") %>%
+      unite("id", -all_of(c(reps_col, "predicted"))) %>% 
+      pivot_wider(names_from = statistic, values_from = predicted)
+    
+    ## Left-join will keep only the rows for which site,month,year of the target match the predicted
+    
+    inner_join(forecast_long, target_long, by = c("id"))  %>% 
+      group_by(id) %>% 
+      summarise(score = scoring_fn_stat(observed[[1]], mean, sd),
+                .groups = "drop")
+    
+  }
   
 }
 
 
 score_filenames <- function(forecast_files){
   f_name <- tools::file_path_sans_ext(paste0("scores-",
-         basename(forecast_files)), compression = TRUE)
+                                             basename(forecast_files)), compression = TRUE)
   file.path("scores", paste0(f_name, ".csv.gz"))
 }
 
