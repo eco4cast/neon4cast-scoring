@@ -9,8 +9,6 @@ object <- aws.s3::get_bucket("submissions")
 themes <- c("aquatics", "beetles", "phenology", "terrestrial", "ticks")
 if(length(object) > 0){
   for(i in 1:length(object)){
-    #stringr::str_split(object[[i]]$Key, "-")[[1]][1]
-    #theme <- stringr::str_split(stringr::str_split(object[[i]]$Key, "-")[[i]][1], "_")[[1]][1]
     theme <-  stringr::str_split(object[[i]]$Key, "-")[[1]][1]
     theme <- stringr::str_split(theme, "_")[[1]][1]
     print(object[[i]]$Key)

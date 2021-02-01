@@ -16,7 +16,7 @@ crps_score <- function(forecast,
                                             "le", 
                                             "vswc",
                                             "gcc_90"),
-                       reps_col = "ensemble"){
+                       reps_col = c("ensemble")){
   
   ## drop extraneous columns && make grouping vars into chr ids (i.e. not dates)
   variables <- c(grouping_variables, target_variables, reps_col)
@@ -25,8 +25,12 @@ crps_score <- function(forecast,
   target <- target %>% select(any_of(variables))
   
   ## Teach crps to treat any NA observations as NA scores:
-  scoring_fn <- function(y, dat) {
+  scoring_fn_ensemble <- function(y, dat) {
     tryCatch(scoringRules::crps_sample(y, dat), error = function(e) NA_real_, finally = NA_real_)
+  }
+  
+  scoring_fn_stat <- function(y, dat) {
+    tryCatch(scoringRules::crps_norm(y, mean = dat$mean, sd = dat$sd), error = function(e) NA_real_, finally = NA_real_)
   }
   
   ## Make tables into long format
@@ -44,9 +48,10 @@ crps_score <- function(forecast,
   
   
   ## Left-join will keep only the rows for which site,month,year of the target match the predicted
+
   inner_join(forecast_long, target_long, by = c("id"))  %>% 
     group_by(id) %>% 
-    summarise(score = scoring_fn(observed[[1]], predicted),
+    summarise(score = scoring_fn_ensemble(observed[[1]], predicted),
               .groups = "drop")
   
 }
@@ -63,7 +68,7 @@ score_it <- function(targets_file,
                      forecast_files, 
                      target_variables,
                      grouping_variables = c("time", "siteID"),
-                     reps_col = "ensemble",
+                     reps_col = c("ensemble"),
                      score_files = score_filenames(forecast_files)
 ){
   
