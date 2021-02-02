@@ -23,8 +23,8 @@ read_forecast <- function(file_in,
       nc <- ncdf4::nc_open(file_in)
       siteID <- ncdf4::ncvar_get(nc, "siteID")
       time <- ncdf4::ncvar_get(nc, "time")
-      tustr<-strsplit(ncdf4::ncatt_get(nc, varid = "time", "units")$value, " ")
-      time <-lubridate::as_date(time,origin=unlist(tustr)[3])
+      #tustr<-strsplit(ncdf4::ncatt_get(nc, varid = "time", "units")$value, " ")
+      #time <-lubridate::as_date(time,origin=unlist(tustr)[3])
       t_string <- strsplit(ncdf4::ncatt_get(nc, varid = "time", "units")$value, " ")[[1]]
       if(t_string[1] == "days"){
         tustr<-strsplit(ncdf4::ncatt_get(nc, varid = "time", "units")$value, " ")
