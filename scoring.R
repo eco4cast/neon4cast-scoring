@@ -1,4 +1,4 @@
-remotes::install_deps()
+#remotes::install_deps()
 
 library(aws.s3)
 
@@ -37,7 +37,8 @@ forecast_files <- forecasts[grepl("beetles-", forecasts)]
 forecast_files <- forecast_files[!stringr::str_detect(forecast_files, "xml")]
 forecast_files <- forecast_files[!stringr::str_detect(forecast_files, "not_in_standard")]
 score_files <- score_it(targets_file, forecast_files,
-                       target_variables = c("richness", "abundance"))
+                       target_variables = c("richness", "abundance"),
+                       )
 
 publish(code = c("scoring.R","R/score_it.R", "R/download_bucket.R"),
         data_in = c(targets_file, forecast_files),
@@ -86,5 +87,21 @@ publish(code = c("scoring.R","R/score_it.R", "R/download_bucket.R"),
         data_out = score_files,
         prefix = "phenology/",
         bucket = "scores")
+
+## ticks
+targets_file <- targets[grepl("ticks-", targets)]
+forecast_files <- forecasts[grepl("ticks-", forecasts)]
+forecast_files <- forecast_files[!stringr::str_detect(forecast_files, "xml")]
+forecast_files <- forecast_files[!stringr::str_detect(forecast_files, "not_in_standard")]
+score_files <- score_it(targets_file, forecast_files,
+                        target_variables = c("Ixodes_scapularis", "Ambloyomma_americanum"),
+                        grouping_variables = c("time", "plotID"))
+
+publish(code = c("scoring.R","R/score_it.R", "R/download_bucket.R"),
+        data_in = c(targets_file, forecast_files),
+        data_out = score_files,
+        prefix = "ticks/",
+        bucket = "scores")
+
 
 
