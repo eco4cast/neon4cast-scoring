@@ -4,7 +4,7 @@ library(aws.s3)
 
 source("R/score_it.R")
 source("R/download_bucket.R")
-source("R/publish.R")
+source("../neon4cast-shared-utilities/publish.R")
 
 ## We'll read the files over the AWS API, though we could als o read them directly from disk on the serve
 dir.create("scores")
@@ -29,7 +29,9 @@ publish(code = c("scoring.R","R/score_it.R", "R/download_bucket.R"),
         data_in = c(targets_file, forecast_files),
         data_out = score_files,
         prefix = "aquatics/",
-        bucket = "scores")
+        bucket = "scores",
+        registries = "https://hash-archive.carlboettiger.info")
+
 
 ## beetles
 targets_file <- targets[grepl("beetles-", targets)]
@@ -44,7 +46,9 @@ publish(code = c("scoring.R","R/score_it.R", "R/download_bucket.R"),
         data_in = c(targets_file, forecast_files),
         data_out = score_files,
         prefix = "beetles/",
-        bucket = "scores")
+        bucket = "scores",
+        registries = "https://hash-archive.carlboettiger.info")
+
 
 ## terrestrial
 targets_file <- targets[grepl("terrestrial_daily-", targets)]
@@ -58,7 +62,9 @@ publish(code = c("scoring.R","R/score_it.R", "R/download_bucket.R"),
         data_in = c(targets_file, forecast_files),
         data_out = score_files,
         prefix = "terrestrial/",
-        bucket = "scores")
+        bucket = "scores",
+        registries = "https://hash-archive.carlboettiger.info")
+
 
 ## terrestrial
 targets_file <- targets[grepl("terrestrial_30min-", targets)]
@@ -72,7 +78,9 @@ publish(code = c("scoring.R","R/score_it.R", "R/download_bucket.R"),
         data_in = c(targets_file, forecast_files),
         data_out = score_files,
         prefix = "terrestrial/",
-        bucket = "scores")
+        bucket = "scores",
+        registries = "https://hash-archive.carlboettiger.info")
+
 
 ## phenology
 targets_file <- targets[grepl("phenology-", targets)]
@@ -86,7 +94,8 @@ publish(code = c("scoring.R","R/score_it.R", "R/download_bucket.R"),
         data_in = c(targets_file, forecast_files),
         data_out = score_files,
         prefix = "phenology/",
-        bucket = "scores")
+        bucket = "scores",
+        registries = "https://hash-archive.carlboettiger.info")
 
 ## ticks
 targets_file <- targets[grepl("ticks-", targets)]
@@ -97,11 +106,14 @@ score_files <- score_it(targets_file, forecast_files,
                         target_variables = c("Ixodes_scapularis", "Ambloyomma_americanum"),
                         grouping_variables = c("time", "plotID"))
 
+
 publish(code = c("scoring.R","R/score_it.R", "R/download_bucket.R"),
         data_in = c(targets_file, forecast_files),
         data_out = score_files,
         prefix = "ticks/",
-        bucket = "scores")
+        bucket = "scores",
+        registries = "https://hash-archive.carlboettiger.info")
+
 
 
 
