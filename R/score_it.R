@@ -29,7 +29,7 @@ crps_score <- function(forecast,
     variables <- c(grouping_variables, target_variables, reps_col) 
   }
   
-  forecast <- forecast %>% dplyr::select(any_of(variables))
+  forecast <- forecast %>% dplyr::select(any_of(c(variables, "forest_start_time", "horizon", "team", "theme")))
   target <- target %>% select(any_of(variables))
   
   ## Teach crps to treat any NA observations as NA scores:
@@ -54,7 +54,7 @@ crps_score <- function(forecast,
   if(reps_col == "ensemble"){
     
     inner_join(forecast_long, target_long, by = c(grouping_variables, "target"))  %>% 
-      group_by(across(any_of(c(grouping_variables, "target")))) %>% 
+      group_by(across(any_of(c(grouping_variables, "target", "horizon", "team", "forest_start_time", "theme")))) %>% 
       summarise(score = scoring_fn_ensemble(observed[[1]], predicted),
                 .groups = "drop")
     
@@ -63,7 +63,7 @@ crps_score <- function(forecast,
     forecast_long %>%
       pivot_wider(names_from = statistic, values_from = predicted) %>%
       inner_join(target_long, by = c(grouping_variables, "target"))  %>% 
-      group_by(across(any_of(c(grouping_variables, "target")))) %>% 
+      group_by(across(any_of(c(grouping_variables, "target", "horizon", "team", "forest_start_time", "theme")))) %>% 
       summarise(score = scoring_fn_stat(observed[[1]], mean, sd),
                 .groups = "drop")
     
@@ -89,13 +89,14 @@ score_it <- function(targets_file,
   ## Read in data and compute scores!
   target <- read_forecast(targets_file)
   forecasts <- lapply(forecast_files, read_forecast)
+  
   scores <- lapply(forecasts, 
                    crps_score, 
                    target = target,  
                    target_variables = target_variables, 
-                   grouping_variables = grouping_variables,
+                   grouping_variables = c(grouping_variables),
                    reps_col = reps_col)
-  
+
   ## write out score files
   purrr::walk2(scores, score_files, readr::write_csv)
   invisible(score_files)

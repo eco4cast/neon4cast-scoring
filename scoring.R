@@ -56,7 +56,7 @@ forecast_files <- forecasts[grepl("terrestrial_daily-", forecasts)]
 forecast_files <- forecast_files[!stringr::str_detect(forecast_files, "xml")]
 forecast_files <- forecast_files[!stringr::str_detect(forecast_files, "not_in_standard")]
 score_files <- score_it(targets_file, forecast_files,
-                        target_variables = c("nee", "lee", "vswc"))
+                        target_variables = c("nee", "le", "vswc"))
 
 publish(code = c("scoring.R","R/score_it.R", "R/download_bucket.R"),
         data_in = c(targets_file, forecast_files),
@@ -72,7 +72,7 @@ forecast_files <- forecasts[grepl("terrestrial_30min-", forecasts)]
 forecast_files <- forecast_files[!stringr::str_detect(forecast_files, "xml")]
 forecast_files <- forecast_files[!stringr::str_detect(forecast_files, "not_in_standard")]
 score_files <- score_it(targets_file, forecast_files,
-                        target_variables = c("nee", "lee", "vswc"))
+                        target_variables = c("nee", "le", "vswc"))
 
 publish(code = c("scoring.R","R/score_it.R", "R/download_bucket.R"),
         data_in = c(targets_file, forecast_files),
@@ -104,7 +104,7 @@ forecast_files <- forecast_files[!stringr::str_detect(forecast_files, "xml")]
 forecast_files <- forecast_files[!stringr::str_detect(forecast_files, "not_in_standard")]
 score_files <- score_it(targets_file, forecast_files,
                         target_variables = c("Ixodes_scapularis", "Ambloyomma_americanum"),
-                        grouping_variables = c("time", "plotID"))
+                        grouping_variables = c("time", "plotID", "siteID"))
 
 
 publish(code = c("scoring.R","R/score_it.R", "R/download_bucket.R"),

@@ -13,9 +13,10 @@ read_forecast <- function(file_in,
                           reps_col = "ensemble",
                           ...){
     print(file_in)
+  no_forecast <- FALSE
     if(any(vapply(c("[.]csv", "[.]csv\\.gz"), grepl, logical(1), file_in))){  
       # if file is csv zip file
-      out <- read_csv(file_in, guess_max = 1e6, ...)
+      out <- read_csv(file_in, guess_max = 1e6, ...) 
       
       
     } else if(grepl("[.]nc", file_in)){ #if file is nc
@@ -51,12 +52,35 @@ read_forecast <- function(file_in,
       }
       ncdf4::nc_close(nc)
       combined_forecast <- combined_forecast %>%
-        tidyr::pivot_wider(names_from = variable, values_from = value)
+        tidyr::pivot_wider(names_from = variable, values_from = value) %>% 
+        mutate(filename = basename(file_in))
       
       out <- combined_forecast
     }else{
       out <- NA
+      no_forecast <- TRUE
     }
   
+  if(!is.na(no_forecast)){
+    teams_tmp <- (str_split(basename(file_in), c("-"),simplify = TRUE))
+    if(str_detect(teams_tmp[,1], "30min")){
+      unique_dates <- sort(lubridate::as_datetime(unique(out$time)))
+      dates <- lubridate::as_datetime(out$time)
+    }else{
+      unique_dates <- sort(lubridate::as_date(unique(out$time)))
+      dates <- lubridate::as_date(out$time)
+    }
+    
+    time_step <- unique_dates[2] - unique_dates[1]
+    first_date <- unique_dates[1] - time_step
+    horizon = as.numeric(dates - first_date) / as.numeric(time_step)
+    team = tools::file_path_sans_ext(tools::file_path_sans_ext(last(teams_tmp[, ncol(teams_tmp)])))
+    
+    out <- out %>% 
+      mutate(forest_start_time = first_date,
+             horizon = horizon,
+             team = team,
+             theme = teams_tmp[,1])
+  }
   out
 }
