@@ -54,7 +54,7 @@ crps_score <- function(forecast,
   if(reps_col == "ensemble"){
     
     inner_join(forecast_long, target_long, by = grouping_variables)  %>% 
-      group_by(grouping_variables) %>% 
+      group_by(across(any_of(grouping_variables))) %>% 
       summarise(score = scoring_fn_ensemble(observed[[1]], predicted),
                 .groups = "drop")
     
@@ -63,7 +63,7 @@ crps_score <- function(forecast,
     forecast_long %>%
       pivot_wider(names_from = statistic, values_from = predicted) %>%
       inner_join(target_long, by = grouping_variables)  %>% 
-      group_by(grouping_variables) %>% 
+      group_by(across(any_of(grouping_variables))) %>% 
       summarise(score = scoring_fn_stat(observed[[1]], mean, sd),
                 .groups = "drop")
     
