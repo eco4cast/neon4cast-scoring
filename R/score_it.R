@@ -45,37 +45,25 @@ crps_score <- function(forecast,
   target_long <- target %>% 
     pivot_longer(any_of(target_variables), 
                  names_to = "target", 
-                 values_to = "observed") %>%
-    tidyr::unite("id", -all_of("observed"))
+                 values_to = "observed")
+  forecast_long <- forecast %>% 
+    pivot_longer(any_of(target_variables), 
+                 names_to = "target", 
+                 values_to = "predicted")
   
   if(reps_col == "ensemble"){
     
-    forecast_long <- forecast %>% 
-      pivot_longer(any_of(target_variables), 
-                   names_to = "target", 
-                   values_to = "predicted") %>%
-      unite("id", -all_of(c(reps_col, "predicted"))) 
-    
-    ## Left-join will keep only the rows for which site,month,year of the target match the predicted
-    
-    inner_join(forecast_long, target_long, by = c("id"))  %>% 
-      group_by(id) %>% 
+    inner_join(forecast_long, target_long, by = grouping_variables)  %>% 
+      group_by(across(any_of(grouping_variables))) %>% 
       summarise(score = scoring_fn_ensemble(observed[[1]], predicted),
                 .groups = "drop")
     
-  }else{
+  } else {
     
-    forecast_long <- forecast %>% 
-      pivot_longer(any_of(target_variables), 
-                   names_to = "target", 
-                   values_to = "predicted") %>%
-      unite("id", -all_of(c(reps_col, "predicted"))) %>% 
-      pivot_wider(names_from = statistic, values_from = predicted)
-    
-    ## Left-join will keep only the rows for which site,month,year of the target match the predicted
-    
-    inner_join(forecast_long, target_long, by = c("id"))  %>% 
-      group_by(id) %>% 
+    forecast_long %>%
+      pivot_wider(names_from = statistic, values_from = predicted) %>%
+      inner_join(target_long, by = grouping_variables)  %>% 
+      group_by(across(any_of(grouping_variables))) %>% 
       summarise(score = scoring_fn_stat(observed[[1]], mean, sd),
                 .groups = "drop")
     
