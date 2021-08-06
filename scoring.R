@@ -89,7 +89,7 @@ forecast_files <- forecasts[grepl("phenology-", forecasts)]
 forecast_files <- forecast_files[!stringr::str_detect(forecast_files, "xml")]
 forecast_files <- forecast_files[!stringr::str_detect(forecast_files, "not_in_standard")]
 score_files <- neon4cast:::score_it(targets_file, forecast_files,
-                        target_variables = c("gcc_90"))
+                        target_variables = c("gcc_90", "rcc_90"))
 
 publish(code = c("R/download_bucket.R"),
         data_in = c(targets_file, forecast_files),
