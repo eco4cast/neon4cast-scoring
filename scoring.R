@@ -66,21 +66,20 @@ publish(code = c("R/download_bucket.R"),
         bucket = "scores",
         registries = "https://hash-archive.carlboettiger.info")
 
-
 ## terrestrial
-#targets_file <- targets[grepl("terrestrial_30min-", targets)]
-#forecast_files <- forecasts[grepl("terrestrial_30min-", forecasts)]
-#forecast_files <- forecast_files[!stringr::str_detect(forecast_files, "xml")]
-#forecast_files <- forecast_files[!stringr::str_detect(forecast_files, "not_in_standard")]
-#score_files <- neon4cast:::score_it(targets_file, forecast_files,
-#                        target_variables = c("nee", "le", "vswc"))
+targets_file <- targets[grepl("terrestrial_30min-", targets)]
+forecast_files <- forecasts[grepl("terrestrial_30min-", forecasts)]
+forecast_files <- forecast_files[!stringr::str_detect(forecast_files, "xml")]
+forecast_files <- forecast_files[!stringr::str_detect(forecast_files, "not_in_standard")]
+score_files <- neon4cast:::score_it(targets_file, forecast_files,
+                        target_variables = c("nee", "le", "vswc"))
 
-#publish(code = c("R/download_bucket.R"),
-#        data_in = c(targets_file, forecast_files),
-#        data_out = score_files,
-#        prefix = "terrestrial/",
-#        bucket = "scores",
-#        registries = "https://hash-archive.carlboettiger.info")
+publish(code = c("R/download_bucket.R"),
+        data_in = c(targets_file, forecast_files),
+        data_out = score_files,
+        prefix = "terrestrial/",
+        bucket = "scores",
+        registries = "https://hash-archive.carlboettiger.info")
 
 
 ## phenology
@@ -105,8 +104,7 @@ forecast_files <- forecast_files[!stringr::str_detect(forecast_files, "xml")]
 forecast_files <- forecast_files[!stringr::str_detect(forecast_files, "not_in_standard")]
 score_files <- neon4cast:::score_it(targets_file, forecast_files,
                         target_variables = c("ixodes_scapularis", "amblyomma_americanum"),
-                        grouping_variables = c("time", "plotID", "siteID"))
-
+                        grouping_variables = c("time","siteID"))
 
 publish(code = c("R/download_bucket.R"),
         data_in = c(targets_file, forecast_files),
