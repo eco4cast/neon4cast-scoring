@@ -27,11 +27,18 @@ filter_theme <- function(x, theme) {
   x <- x[!stringr::str_detect(x, "xml")]
   x <- x[!stringr::str_detect(x, "not_in_standard")]
   x
- }
-filter_prov <- function(x, prov_tsv){
+}
+library(contentid)
+filter_prov <- function(x, prov_tsv, target){
+  
         if(!file.exists(prov_tsv)) return(x)
         prov <- read_tsv(prov_tsv)
-        ids <- contentid::content_id(x)
+        
+        new_target <- !(content_id(target) %in% prov$id)
+        if(new_target) return(x)
+          
+        
+        ids <- content_id(x)
         keep <- !(ids %in% prov$id)
         x[keep]
 }
@@ -39,7 +46,7 @@ filter_prov <- function(x, prov_tsv){
 ## aquatics
 targets_file <- filter_theme(targets, "aquatics")
 forecast_files <- filter_theme(forecasts, "aquatics") %>%
-  filter_prov( "scores/aquatics/prov.tsv")
+  filter_prov( "scores/aquatics/prov.tsv", targets_file)
 
 if(length(forecast_files) > 0){
         score_files <- neon4cast:::score_it(targets_file, forecast_files,
@@ -56,7 +63,7 @@ publish(data_in = c(targets_file, forecast_files),
 ## beetles
 targets_file <- filter_theme(targets, "beetles")
 forecast_files <- filter_theme(forecasts, "beetles") %>%
-        filter_prov("scores/beetles/prov.tsv")
+        filter_prov("scores/beetles/prov.tsv", targets_file)
 
 if(length(forecast_files) > 0){
   score_files <- neon4cast:::score_it(targets_file, forecast_files,
@@ -73,7 +80,7 @@ if(length(forecast_files) > 0){
 ## terrestrial
 targets_file <- filter_theme(targets, "terrestrial_daily")
 forecast_files <- filter_theme(forecasts, "terrestrial_daily") %>%
-        filter_prov("scores/terrestrial/prov.tsv")
+        filter_prov("scores/terrestrial/prov.tsv", targets_file)
 
 if(length(forecast_files) > 0){
         score_files <- neon4cast:::score_it(targets_file, forecast_files,
@@ -89,7 +96,7 @@ publish(data_in = c(targets_file, forecast_files),
 ## terrestrial
 targets_file <- filter_theme(targets, "terrestrial_30min")
 forecast_files <- filter_theme(forecasts, "terrestrial_30min") %>%
-        filter_prov("scores/terrestrial/prov.tsv")
+        filter_prov("scores/terrestrial/prov.tsv", targets_file)
 
 if(length(forecast_files) > 0){
         score_files <- neon4cast:::score_it(targets_file, forecast_files,
@@ -107,7 +114,7 @@ publish(data_in = c(targets_file, forecast_files),
 
 targets_file <- filter_theme(targets, "phenology")
 forecast_files <- filter_theme(forecasts, "phenology") %>%
-        filter_prov("scores/phenology/prov.tsv")
+        filter_prov("scores/phenology/prov.tsv", targets_file)
 
 if(length(forecast_files) > 0){
         score_files <- neon4cast:::score_it(targets_file, forecast_files,
@@ -124,7 +131,7 @@ publish(data_in = c(targets_file, forecast_files),
 ## ticks
 targets_file <- filter_theme(targets, "ticks")
 forecast_files <- filter_theme(forecasts, "ticks") %>%
-        filter_prov("scores/ticks/prov.tsv")
+        filter_prov("scores/ticks/prov.tsv", targets_file)
 
 if(length(forecast_files) > 0){
   score_files <- neon4cast:::score_it(targets_file, forecast_files,
