@@ -87,6 +87,8 @@ targets_file <- targets[grepl("phenology-", targets)]
 forecast_files <- forecasts[grepl("phenology-", forecasts)]
 forecast_files <- forecast_files[!stringr::str_detect(forecast_files, "xml")]
 forecast_files <- forecast_files[!stringr::str_detect(forecast_files, "not_in_standard")]
+
+#forecast_files <- "/efi_neon_challenge/forecasts/phenology/phenology-2021-07-05-climatology.csv.gz"
 score_files <- neon4cast:::score_it(targets_file, forecast_files,
                         target_variables = c("gcc_90", "rcc_90"))
 
