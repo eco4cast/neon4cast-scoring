@@ -1,12 +1,23 @@
 #remotes::install_deps()
-
 library(aws.s3)
 library(neon4cast)
 library(magrittr)
+library(future)
+
+## Opt in to parallel execution (for score-it)
+future::plan(future::multisession)
+
+
 #source("R/score_it.R")
 source("../neon4cast-shared-utilities/publish.R")
+source("R/filter_forecasts.R")
 
-dir.create("scores")
+fs::dir_create("scores/aquatics/")
+fs::dir_create("scores/phenology/")
+fs::dir_create("scores/beetles/")
+fs::dir_create("scores/ticks/")
+fs::dir_create("scores/terrestrial/")
+
 Sys.setenv("AWS_DEFAULT_REGION" = "data",
            "AWS_S3_ENDPOINT" = "ecoforecast.org")
 
@@ -22,26 +33,10 @@ targets <- fs::dir_ls("targets", recurse = TRUE, type = "file")
 forecasts <- fs::dir_ls("forecasts", recurse = TRUE, type = "file")
 
 
-filter_theme <- function(x, theme) {
-  x <- x[grepl(paste0(theme, "-"), x)]
-  x <- x[!stringr::str_detect(x, "xml")]
-  x <- x[!stringr::str_detect(x, "not_in_standard")]
-  x
-}
-library(contentid)
-filter_prov <- function(x, prov_tsv, target){
-  
-        if(!file.exists(prov_tsv)) return(x)
-        prov <- read_tsv(prov_tsv)
-        
-        new_target <- !(content_id(target) %in% prov$id)
-        if(new_target) return(x)
-          
-        
-        ids <- content_id(x)
-        keep <- !(ids %in% prov$id)
-        x[keep]
-}
+
+
+
+
 
 ## aquatics
 targets_file <- filter_theme(targets, "aquatics")
@@ -111,13 +106,12 @@ publish(data_in = c(targets_file, forecast_files),
 
 ## phenology
 
-
 targets_file <- filter_theme(targets, "phenology")
 forecast_files <- filter_theme(forecasts, "phenology") %>%
         filter_prov("scores/phenology/prov.tsv", targets_file)
 
 if(length(forecast_files) > 0){
-        score_files <- neon4cast:::score_it(targets_file, forecast_files,
+  score_files <- neon4cast:::score_it(targets_file, forecast_files,
                         target_variables = c("gcc_90", "rcc_90"))
 
 publish(data_in = c(targets_file, forecast_files),
