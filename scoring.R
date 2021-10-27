@@ -5,8 +5,8 @@ library(magrittr)
 library(future)
 
 ## Opt in to parallel execution (for score-it)
-future::plan(future::multisession)
-
+#future::plan(future::multisession)
+#options("mc.cores"=2)  # using too many cores with too little RAM wil crash
 
 #source("R/score_it.R")
 source("../neon4cast-shared-utilities/publish.R")
@@ -17,15 +17,22 @@ fs::dir_create("scores/phenology/")
 fs::dir_create("scores/beetles/")
 fs::dir_create("scores/ticks/")
 fs::dir_create("scores/terrestrial/")
+fs::dir_create("forecasts")
+fs::dir_create("targets")
 
 Sys.setenv("AWS_DEFAULT_REGION" = "data",
            "AWS_S3_ENDPOINT" = "ecoforecast.org")
 
 ## Note: sync also requires auth credentials even to download from public bucket
+message("Downloading forecasts ...")
+
+sink(tempfile())
 suppressMessages({
 aws.s3::s3sync("forecasts", bucket= "forecasts",  direction= "download", verbose= FALSE)
-aws.s3::s3sync("targets", "targets", direction= "download", FALSE)
+aws.s3::s3sync("targets", "targets", direction= "download", verbose=FALSE)
 })
+sink()
+
 
 
 ## List the downloaded files
@@ -39,6 +46,7 @@ forecasts <- fs::dir_ls("forecasts", recurse = TRUE, type = "file")
 
 
 ## aquatics
+message("Aquatics ...")
 targets_file <- filter_theme(targets, "aquatics")
 forecast_files <- filter_theme(forecasts, "aquatics") %>%
   filter_prov( "scores/aquatics/prov.tsv", targets_file)
@@ -56,6 +64,7 @@ publish(data_in = c(targets_file, forecast_files),
 }
 
 ## beetles
+message("Beetles ...")
 targets_file <- filter_theme(targets, "beetles")
 forecast_files <- filter_theme(forecasts, "beetles") %>%
         filter_prov("scores/beetles/prov.tsv", targets_file)
@@ -73,6 +82,7 @@ if(length(forecast_files) > 0){
 }
 
 ## terrestrial
+message("Terrestrial - daily interval ...")
 targets_file <- filter_theme(targets, "terrestrial_daily")
 forecast_files <- filter_theme(forecasts, "terrestrial_daily") %>%
         filter_prov("scores/terrestrial/prov.tsv", targets_file)
@@ -88,7 +98,9 @@ publish(data_in = c(targets_file, forecast_files),
         registries = "https://hash-archive.carlboettiger.info")
 }
 
-## terrestrial
+## terrestrial - 30 Minute
+message("Terrestrial - 30 Min interval ...")
+
 targets_file <- filter_theme(targets, "terrestrial_30min")
 forecast_files <- filter_theme(forecasts, "terrestrial_30min") %>%
         filter_prov("scores/terrestrial/prov.tsv", targets_file)
@@ -105,6 +117,7 @@ publish(data_in = c(targets_file, forecast_files),
 }
 
 ## phenology
+message("Phenology...")
 targets_file <- filter_theme(targets, "phenology")
 forecast_files <- filter_theme(forecasts, "phenology") %>%
         filter_prov("scores/phenology/prov.tsv", targets_file)
@@ -122,6 +135,7 @@ publish(data_in = c(targets_file, forecast_files),
 
 
 ## ticks
+message("Ticks...")
 targets_file <- filter_theme(targets, "ticks")
 forecast_files <- filter_theme(forecasts, "ticks") %>%
         filter_prov("scores/ticks/prov.tsv", targets_file)

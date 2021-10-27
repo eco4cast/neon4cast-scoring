@@ -8,7 +8,7 @@ filter_theme <- function(x, theme) {
 filter_prov <- function(x, prov_tsv, target){
   
   if(!file.exists(prov_tsv)) return(x)
-  prov <- read_tsv(prov_tsv)
+  prov <- readr::read_tsv(prov_tsv, show_col_types = FALSE, lazy = FALSE)
   
   new_target <- !(contentid::content_id(target) %in% prov$id)
   if(new_target) return(x)
