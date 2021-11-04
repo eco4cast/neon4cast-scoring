@@ -4,19 +4,11 @@ library(neon4cast)
 library(magrittr)
 library(future)
 
-## Opt in to parallel execution (for score-it)
-#future::plan(future::multisession)
-#options("mc.cores"=2)  # using too many cores with too little RAM wil crash
 
 #source("R/score_it.R")
 source("../neon4cast-shared-utilities/publish.R")
 source("R/filter_forecasts.R")
 
-fs::dir_create("scores/aquatics/")
-fs::dir_create("scores/phenology/")
-fs::dir_create("scores/beetles/")
-fs::dir_create("scores/ticks/")
-fs::dir_create("scores/terrestrial/")
 fs::dir_create("forecasts")
 fs::dir_create("targets")
 
@@ -27,10 +19,10 @@ Sys.setenv("AWS_DEFAULT_REGION" = "data",
 message("Downloading forecasts ...")
 
 sink(tempfile())
-suppressMessages({
+
 aws.s3::s3sync("forecasts", bucket= "forecasts",  direction= "download", verbose= FALSE)
 aws.s3::s3sync("targets", "targets", direction= "download", verbose=FALSE)
-})
+
 sink()
 
 
@@ -42,7 +34,12 @@ forecasts <- fs::dir_ls("forecasts", recurse = TRUE, type = "file")
 
 
 
-
+## Opt in to parallel execution (for score-it)
+future::plan(future::multisession)
+furrr::furrr_options(seed=TRUE)
+options("mc.cores"=8)  # using too many cores with too little RAM wil crash
+publish <- function(...) invisible(NULL)
+filter_prov <- function(x, ...) x
 
 
 ## aquatics
@@ -52,8 +49,7 @@ forecast_files <- filter_theme(forecasts, "aquatics") %>%
   filter_prov( "scores/aquatics/prov.tsv", targets_file)
 
 if(length(forecast_files) > 0){
-        score_files <- neon4cast:::score_it(targets_file, forecast_files,
-         target_variables = c("oxygen", "temperature"))
+        score_files <- neon4cast:::score_it(targets_file, forecast_files, dir = "scores/aquatics")
 
 ## Publish
 publish(data_in = c(targets_file, forecast_files),
@@ -70,9 +66,7 @@ forecast_files <- filter_theme(forecasts, "beetles") %>%
         filter_prov("scores/beetles/prov.tsv", targets_file)
 
 if(length(forecast_files) > 0){
-  score_files <- neon4cast:::score_it(targets_file, forecast_files,
-                       target_variables = c("richness", "abundance"),
-                       )
+  score_files <- neon4cast:::score_it(targets_file, forecast_files, dir = "scores/beetles") 
 
   publish(data_in = c(targets_file, forecast_files),
         data_out = score_files,
@@ -88,8 +82,8 @@ forecast_files <- filter_theme(forecasts, "terrestrial_daily") %>%
         filter_prov("scores/terrestrial/prov.tsv", targets_file)
 
 if(length(forecast_files) > 0){
-        score_files <- neon4cast:::score_it(targets_file, forecast_files,
-                        target_variables = c("nee", "le", "vswc"))
+        score_files <- neon4cast:::score_it(targets_file, forecast_files, dir = "scores/terrestrial")
+                       
 
 publish(data_in = c(targets_file, forecast_files),
         data_out = score_files,
@@ -106,8 +100,7 @@ forecast_files <- filter_theme(forecasts, "terrestrial_30min") %>%
         filter_prov("scores/terrestrial/prov.tsv", targets_file)
 
 if(length(forecast_files) > 0){
-        score_files <- neon4cast:::score_it(targets_file, forecast_files,
-                        target_variables = c("nee", "le", "vswc"))
+        score_files <- neon4cast:::score_it(targets_file, forecast_files, dir = "scores/terrestrial")
 
 publish(data_in = c(targets_file, forecast_files),
         data_out = score_files,
@@ -123,8 +116,7 @@ forecast_files <- filter_theme(forecasts, "phenology") %>%
         filter_prov("scores/phenology/prov.tsv", targets_file)
 
 if(length(forecast_files) > 0){
-  score_files <- neon4cast:::score_it(targets_file, forecast_files,
-                        target_variables = c("gcc_90", "rcc_90"))
+  score_files <- neon4cast:::score_it(targets_file, forecast_files,dir = "scores/phenology")
 
 publish(data_in = c(targets_file, forecast_files),
         data_out = score_files,
@@ -141,9 +133,7 @@ forecast_files <- filter_theme(forecasts, "ticks") %>%
         filter_prov("scores/ticks/prov.tsv", targets_file)
 
 if(length(forecast_files) > 0){
-  score_files <- neon4cast:::score_it(targets_file, forecast_files,
-                        target_variables = c("ixodes_scapularis", "amblyomma_americanum"),
-                        grouping_variables = c("time","siteID"))
+  score_files <- neon4cast:::score_it(targets_file, forecast_files, dir = "scores/ticks")
 
   publish(data_in = c(targets_file, forecast_files),
         data_out = score_files,
