@@ -37,9 +37,8 @@ forecasts <- fs::dir_ls("forecasts", recurse = TRUE, type = "file")
 ## Opt in to parallel execution (for score-it)
 future::plan(future::multisession)
 furrr::furrr_options(seed=TRUE)
-options("mc.cores"=8)  # using too many cores with too little RAM wil crash
-publish <- function(...) invisible(NULL)
-filter_prov <- function(x, ...) x
+options("mc.cores"=2)  # using too many cores with too little RAM wil crash
+
 
 
 ## aquatics
