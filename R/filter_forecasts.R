@@ -2,6 +2,7 @@
 filter_theme <- function(x, theme) {
   x <- x[grepl(paste0(theme, "-"), x)]
   x <- x[!stringr::str_detect(x, "xml")]
+  x <- x[!stringr::str_detect(x, "prov")]
   x <- x[!stringr::str_detect(x, "not_in_standard")]
   x
 }

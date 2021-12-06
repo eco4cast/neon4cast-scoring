@@ -11,7 +11,7 @@ source("R/filter_forecasts.R")
 
 fs::dir_create("forecasts")
 fs::dir_create("targets")
-
+fs::dir_create("prov")
 Sys.setenv("AWS_DEFAULT_REGION" = "data",
            "AWS_S3_ENDPOINT" = "ecoforecast.org")
 
@@ -45,16 +45,16 @@ options("mc.cores"=2)  # using too many cores with too little RAM wil crash
 message("Aquatics ...")
 targets_file <- filter_theme(targets, "aquatics")
 forecast_files <- filter_theme(forecasts, "aquatics") %>%
-  filter_prov( "scores/aquatics/prov.tsv", targets_file)
+  filter_prov( "prov/scores-aquatics-prov.tsv", targets_file)
 
 if(length(forecast_files) > 0){
-        score_files <- neon4cast:::score_it(targets_file, forecast_files, dir = "scores/aquatics")
+        score_files <- neon4cast:::score_it(targets_file, forecast_files, dir = "scores/")
 
 ## Publish
 publish(data_in = c(targets_file, forecast_files),
         data_out = score_files,
-        prefix = "aquatics/",
         bucket = "scores",
+        provdb = "prov/scores-aquatics-prov.tsv",
         registries = "https://hash-archive.carlboettiger.info")
 }
 
@@ -62,15 +62,15 @@ publish(data_in = c(targets_file, forecast_files),
 message("Beetles ...")
 targets_file <- filter_theme(targets, "beetles")
 forecast_files <- filter_theme(forecasts, "beetles") %>%
-        filter_prov("scores/beetles/prov.tsv", targets_file)
+        filter_prov("prov/scores-beetles-prov.tsv", targets_file)
 
 if(length(forecast_files) > 0){
-  score_files <- neon4cast:::score_it(targets_file, forecast_files, dir = "scores/beetles") 
+  score_files <- neon4cast:::score_it(targets_file, forecast_files, dir = "scores/") 
 
   publish(data_in = c(targets_file, forecast_files),
         data_out = score_files,
-        prefix = "beetles/",
         bucket = "scores",
+        provdb = "prov/scores-beetles-prov.tsv",
         registries = "https://hash-archive.carlboettiger.info")
 }
 
@@ -78,16 +78,16 @@ if(length(forecast_files) > 0){
 message("Terrestrial - daily interval ...")
 targets_file <- filter_theme(targets, "terrestrial_daily")
 forecast_files <- filter_theme(forecasts, "terrestrial_daily") %>%
-        filter_prov("scores/terrestrial/prov.tsv", targets_file)
+        filter_prov("prov/scores-terrestrial-prov.tsv", targets_file)
 
 if(length(forecast_files) > 0){
-        score_files <- neon4cast:::score_it(targets_file, forecast_files, dir = "scores/terrestrial")
+        score_files <- neon4cast:::score_it(targets_file, forecast_files, dir = "scores/")
                        
 
 publish(data_in = c(targets_file, forecast_files),
         data_out = score_files,
-        prefix = "terrestrial/",
         bucket = "scores",
+        provdb = "prov/scores-terrestrial-prov.tsv",
         registries = "https://hash-archive.carlboettiger.info")
 }
 
@@ -96,15 +96,15 @@ message("Terrestrial - 30 Min interval ...")
 
 targets_file <- filter_theme(targets, "terrestrial_30min")
 forecast_files <- filter_theme(forecasts, "terrestrial_30min") %>%
-        filter_prov("scores/terrestrial/prov.tsv", targets_file)
+        filter_prov("prov/scores-terrestrial-prov.tsv", targets_file)
 
 if(length(forecast_files) > 0){
-        score_files <- neon4cast:::score_it(targets_file, forecast_files, dir = "scores/terrestrial")
+        score_files <- neon4cast:::score_it(targets_file, forecast_files, dir = "scores/")
 
 publish(data_in = c(targets_file, forecast_files),
         data_out = score_files,
-        prefix = "terrestrial/",
         bucket = "scores",
+        provdb = "prov/scores-terrestrial-prov.tsv",
         registries = "https://hash-archive.carlboettiger.info")
 }
 
@@ -112,15 +112,15 @@ publish(data_in = c(targets_file, forecast_files),
 message("Phenology...")
 targets_file <- filter_theme(targets, "phenology")
 forecast_files <- filter_theme(forecasts, "phenology") %>%
-        filter_prov("scores/phenology/prov.tsv", targets_file)
+        filter_prov("prov/scores-phenology-prov.tsv", targets_file)
 
 if(length(forecast_files) > 0){
-  score_files <- neon4cast:::score_it(targets_file, forecast_files,dir = "scores/phenology")
+  score_files <- neon4cast:::score_it(targets_file, forecast_files, dir = "scores/")
 
 publish(data_in = c(targets_file, forecast_files),
         data_out = score_files,
-        prefix = "phenology/",
         bucket = "scores",
+        provdb = "prov/scores-phenology-prov.tsv",
         registries = "https://hash-archive.carlboettiger.info")
 }
 
@@ -129,15 +129,15 @@ publish(data_in = c(targets_file, forecast_files),
 message("Ticks...")
 targets_file <- filter_theme(targets, "ticks")
 forecast_files <- filter_theme(forecasts, "ticks") %>%
-        filter_prov("scores/ticks/prov.tsv", targets_file)
+        filter_prov("prov/scores-ticks-prov.tsv", targets_file)
 
 if(length(forecast_files) > 0){
-  score_files <- neon4cast:::score_it(targets_file, forecast_files, dir = "scores/ticks")
+  score_files <- neon4cast:::score_it(targets_file, forecast_files, dir = "scores/")
 
   publish(data_in = c(targets_file, forecast_files),
         data_out = score_files,
-        prefix = "ticks/",
         bucket = "scores",
+        provdb = "prov/scores-ticks-prov.tsv",
         registries = "https://hash-archive.carlboettiger.info")
 
 }
