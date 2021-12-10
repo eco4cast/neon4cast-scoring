@@ -1,9 +1,9 @@
-
+## readr way
 scores_files <- fs::dir_ls("scores/", type="file", recurse = TRUE)
 combined <- readr::read_csv(scores_files, progress = FALSE)
 
 
-
+## arrow way - faster
 library(arrow)
 library(dplyr)
 s <- arrow::schema(
@@ -25,8 +25,11 @@ s <- arrow::schema(
   horizon = float64()
 )
 ds <- open_dataset("scores", schema=s, format = "csv", skip_rows = 1)
-## WHOOOPSIES, WHERE'S THE OBSERVATION DATA!
-ds %>% filter(!is.na(observed)) %>% count(theme) %>% collect()
 
-ds %>% filter(theme=="beetles", !is.na(mean)) %>% count(team) %>% collect()
+
+
+## Remote arrow:
+library(arrow)
+s3 <- s3_bucket(bucket = "scores", endpoint_override = "data.ecoforecast.org")
+ds <- open_dataset(s3, schema=s, format = "csv", skip_rows = 1)
 

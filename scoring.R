@@ -1,36 +1,38 @@
-#remotes::install_deps()
+# remotes::install_deps()
 library(aws.s3)
 library(neon4cast)
 library(magrittr)
 library(future)
 
 
-#source("R/score_it.R")
-source("../neon4cast-shared-utilities/publish.R")
+## Heper utility:
 source("R/filter_forecasts.R")
 
+
+## A place to store everything
 fs::dir_create("forecasts")
 fs::dir_create("targets")
 fs::dir_create("prov")
 Sys.setenv("AWS_DEFAULT_REGION" = "data",
            "AWS_S3_ENDPOINT" = "ecoforecast.org")
 
-## Note: sync also requires auth credentials even to download from public bucket
 message("Downloading forecasts ...")
 
-sink(tempfile())
+## Note: s3sync stupidly also requires auth credentials even to download from public bucket
 
+
+sink(tempfile()) # aws.s3 is crazy chatty and ignores suppressMessages()...
 aws.s3::s3sync("forecasts", bucket= "forecasts",  direction= "download", verbose= FALSE)
 aws.s3::s3sync("targets", "targets", direction= "download", verbose=FALSE)
+aws.s3::s3sync("prov", bucket= "prov",  direction= "download", verbose= FALSE)
 
 sink()
 
 
 
-## List the downloaded files
+## List all the downloaded files
 targets <- fs::dir_ls("targets", recurse = TRUE, type = "file")
 forecasts <- fs::dir_ls("forecasts", recurse = TRUE, type = "file")
-
 
 
 
@@ -40,89 +42,57 @@ furrr::furrr_options(seed=TRUE)
 options("mc.cores"=2)  # using too many cores with too little RAM wil crash
 
 
-
 ## aquatics
 message("Aquatics ...")
 targets_file <- filter_theme(targets, "aquatics")
 forecast_files <- filter_theme(forecasts, "aquatics") %>%
-  filter_prov( "prov/scores-aquatics-prov.tsv", targets_file)
+  filter_prov( "prov/scores-prov.tsv", targets_file)
 
-if(length(forecast_files) > 0){
-        score_files <- neon4cast:::score_it(targets_file, forecast_files, dir = "scores/")
+score_files <- neon4cast:::score_it(targets_file, forecast_files, dir = "scores/")
+prov::write_prov_tsv(data_in = c(targets_file, forecast_files),  data_out = score_files, provdb =  "prov/scores-prov.tsv")
 
-## Publish
-publish(data_in = c(targets_file, forecast_files),
-        data_out = score_files,
-        bucket = "scores",
-        provdb = "prov/scores-aquatics-prov.tsv",
-        registries = "https://hash-archive.carlboettiger.info")
-}
 
 ## beetles
 message("Beetles ...")
 targets_file <- filter_theme(targets, "beetles")
 forecast_files <- filter_theme(forecasts, "beetles") %>%
-        filter_prov("prov/scores-beetles-prov.tsv", targets_file)
+        filter_prov("prov/scores-prov.tsv", targets_file)
 
-if(length(forecast_files) > 0){
-  score_files <- neon4cast:::score_it(targets_file, forecast_files, dir = "scores/") 
+score_files <- neon4cast:::score_it(targets_file, forecast_files, dir = "scores/") 
+prov::write_prov_tsv(data_in = c(targets_file, forecast_files),  data_out = score_files, provdb = "prov/scores-prov.tsv")
 
-  publish(data_in = c(targets_file, forecast_files),
-        data_out = score_files,
-        bucket = "scores",
-        provdb = "prov/scores-beetles-prov.tsv",
-        registries = "https://hash-archive.carlboettiger.info")
-}
 
 ## terrestrial
 message("Terrestrial - daily interval ...")
 targets_file <- filter_theme(targets, "terrestrial_daily")
 forecast_files <- filter_theme(forecasts, "terrestrial_daily") %>%
-        filter_prov("prov/scores-terrestrial-prov.tsv", targets_file)
+        filter_prov("prov/scores-prov.tsv", targets_file)
 
-if(length(forecast_files) > 0){
-        score_files <- neon4cast:::score_it(targets_file, forecast_files, dir = "scores/")
-                       
-
-publish(data_in = c(targets_file, forecast_files),
-        data_out = score_files,
-        bucket = "scores",
-        provdb = "prov/scores-terrestrial-prov.tsv",
-        registries = "https://hash-archive.carlboettiger.info")
-}
+score_files <- neon4cast:::score_it(targets_file, forecast_files, dir = "scores/")
+prov::write_prov_tsv(data_in = c(targets_file, forecast_files),  data_out = score_files, provdb = "prov/scores-prov.tsv")
+        
 
 ## terrestrial - 30 Minute
 message("Terrestrial - 30 Min interval ...")
 
 targets_file <- filter_theme(targets, "terrestrial_30min")
 forecast_files <- filter_theme(forecasts, "terrestrial_30min") %>%
-        filter_prov("prov/scores-terrestrial-prov.tsv", targets_file)
+        filter_prov("prov/scores-prov.tsv", targets_file)
 
-if(length(forecast_files) > 0){
-        score_files <- neon4cast:::score_it(targets_file, forecast_files, dir = "scores/")
-
-publish(data_in = c(targets_file, forecast_files),
-        data_out = score_files,
-        bucket = "scores",
-        provdb = "prov/scores-terrestrial-prov.tsv",
-        registries = "https://hash-archive.carlboettiger.info")
-}
+score_files <- neon4cast:::score_it(targets_file, forecast_files, dir = "scores/")
+prov::write_prov_tsv(data_in = c(targets_file, forecast_files),  data_out = score_files, provdb = "prov/scores-prov.tsv")
+        
 
 ## phenology
 message("Phenology...")
 targets_file <- filter_theme(targets, "phenology")
 forecast_files <- filter_theme(forecasts, "phenology") %>%
-        filter_prov("prov/scores-phenology-prov.tsv", targets_file)
+        filter_prov("prov/scores-prov.tsv", targets_file)
 
-if(length(forecast_files) > 0){
-  score_files <- neon4cast:::score_it(targets_file, forecast_files, dir = "scores/")
+score_files <- neon4cast:::score_it(targets_file, forecast_files, dir = "scores/")
+prov::write_prov_tsv(data_in = c(targets_file, forecast_files),  data_out = score_files, provdb = "prov/scores-prov.tsv")
 
-publish(data_in = c(targets_file, forecast_files),
-        data_out = score_files,
-        bucket = "scores",
-        provdb = "prov/scores-phenology-prov.tsv",
-        registries = "https://hash-archive.carlboettiger.info")
-}
+
 
 
 ## ticks
@@ -131,15 +101,20 @@ targets_file <- filter_theme(targets, "ticks")
 forecast_files <- filter_theme(forecasts, "ticks") %>%
         filter_prov("prov/scores-ticks-prov.tsv", targets_file)
 
-if(length(forecast_files) > 0){
-  score_files <- neon4cast:::score_it(targets_file, forecast_files, dir = "scores/")
-
-  publish(data_in = c(targets_file, forecast_files),
-        data_out = score_files,
-        bucket = "scores",
-        provdb = "prov/scores-ticks-prov.tsv",
-        registries = "https://hash-archive.carlboettiger.info")
-
-}
+score_files <- neon4cast:::score_it(targets_file, forecast_files, dir = "scores/")
+prov::write_prov_tsv(data_in = c(targets_file, forecast_files),  data_out = score_files, provdb = "prov/scores-prov.tsv")
 
 
+
+
+################### EFI-USE ONLY -- Requires secure credentials to upload data to EFI SERVER  #######################
+## AND... upload back to EFI server
+
+sink(tempfile())  # aws.s3 is crazy chatty and ignores suppressMessages()..
+
+
+aws.s3::s3sync("scores", "scores", direction= "upload", verbose=FALSE)
+aws.s3::s3sync("prov", bucket= "prov",  direction= "upload", verbose= FALSE)
+
+
+sink()
