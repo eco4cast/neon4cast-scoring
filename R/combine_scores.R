@@ -1,9 +1,8 @@
-## readr way
+## readr way, via local copy of `scores` dir
 scores_files <- fs::dir_ls("scores/", type="file", recurse = TRUE)
 combined <- readr::read_csv(scores_files, progress = FALSE)
 
-
-## arrow way - faster
+## Remote arrow:
 library(arrow)
 library(dplyr)
 s <- arrow::schema(
@@ -24,12 +23,6 @@ s <- arrow::schema(
   forecast_start_time = timestamp("s", timezone="UTC"),
   horizon = float64()
 )
-ds <- open_dataset("scores", schema=s, format = "csv", skip_rows = 1)
-
-
-
-## Remote arrow:
-library(arrow)
 s3 <- s3_bucket(bucket = "scores", endpoint_override = "data.ecoforecast.org")
 ds <- open_dataset("scores", schema=s, format = "csv", skip_rows = 1)
 
@@ -38,3 +31,5 @@ ds <- open_dataset("scores", schema=s, format = "csv", skip_rows = 1)
 
 ## Test
 bet <- ds %>% filter(theme == "beetles") %>% collect()
+
+
