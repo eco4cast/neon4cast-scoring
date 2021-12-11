@@ -21,6 +21,7 @@ message("Downloading forecasts ...")
 ## Note: s3sync stupidly also requires auth credentials even to download from public bucket
 
 
+
 sink(tempfile()) # aws.s3 is crazy chatty and ignores suppressMessages()...
 aws.s3::s3sync("forecasts", bucket= "forecasts",  direction= "download", verbose= FALSE)
 aws.s3::s3sync("targets", "targets", direction= "download", verbose=FALSE)
@@ -108,8 +109,8 @@ prov::write_prov_tsv(data_in = c(targets_file, forecast_files),  data_out = scor
 
 
 ################### EFI-USE ONLY -- Requires secure credentials to upload data to EFI SERVER  #######################
-## AND... upload back to EFI server
 
+message("Uploading scores to EFI server...")
 sink(tempfile())  # aws.s3 is crazy chatty and ignores suppressMessages()..
 
 
