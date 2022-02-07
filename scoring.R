@@ -106,8 +106,6 @@ score_files <- neon4cast:::score_it(targets_file, forecast_files, dir = "scores/
 prov::write_prov_tsv(data_in = c(targets_file, forecast_files),  data_out = score_files, provdb = "prov/scores-prov.tsv")
 
 
-
-
 ################### EFI-USE ONLY -- Requires secure credentials to upload data to EFI SERVER  #######################
 
 message("Uploading scores to EFI server...")
