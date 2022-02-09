@@ -49,61 +49,70 @@ targets_file <- filter_theme(targets, "aquatics")
 forecast_files <- filter_theme(forecasts, "aquatics") %>%
   filter_prov( "prov/scores-prov.tsv", targets_file)
 
-score_files <- neon4cast:::score_it(targets_file, forecast_files, dir = "scores/")
-prov::write_prov_tsv(data_in = c(targets_file, forecast_files),  data_out = score_files, provdb =  "prov/scores-prov.tsv")
+if(length(forecast_files) > 0){
+  score_files <- neon4cast:::score_it(targets_file, forecast_files, dir = "scores/")
+  prov::write_prov_tsv(data_in = c(targets_file, forecast_files),  data_out = score_files, provdb =  "prov/scores-prov.tsv")
+}
 
 
 ## beetles
 message("Beetles ...")
 targets_file <- filter_theme(targets, "beetles")
 forecast_files <- filter_theme(forecasts, "beetles") %>%
-        filter_prov("prov/scores-prov.tsv", targets_file)
+  filter_prov("prov/scores-prov.tsv", targets_file)
 
-score_files <- neon4cast:::score_it(targets_file, forecast_files, dir = "scores/") 
-prov::write_prov_tsv(data_in = c(targets_file, forecast_files),  data_out = score_files, provdb = "prov/scores-prov.tsv")
+if(length(forecast_files) > 0){
+  score_files <- neon4cast:::score_it(targets_file, forecast_files, dir = "scores/") 
+  prov::write_prov_tsv(data_in = c(targets_file, forecast_files),  data_out = score_files, provdb = "prov/scores-prov.tsv")
+}
 
 
 ## terrestrial
 message("Terrestrial - daily interval ...")
 targets_file <- filter_theme(targets, "terrestrial_daily")
 forecast_files <- filter_theme(forecasts, "terrestrial_daily") %>%
-        filter_prov("prov/scores-prov.tsv", targets_file)
+  filter_prov("prov/scores-prov.tsv", targets_file)
 
-score_files <- neon4cast:::score_it(targets_file, forecast_files, dir = "scores/")
-prov::write_prov_tsv(data_in = c(targets_file, forecast_files),  data_out = score_files, provdb = "prov/scores-prov.tsv")
-        
+if(length(forecast_files) > 0){
+  score_files <- neon4cast:::score_it(targets_file, forecast_files, dir = "scores/")
+  prov::write_prov_tsv(data_in = c(targets_file, forecast_files),  data_out = score_files, provdb = "prov/scores-prov.tsv")
+}
+
 
 ## terrestrial - 30 Minute
 message("Terrestrial - 30 Min interval ...")
 
 targets_file <- filter_theme(targets, "terrestrial_30min")
 forecast_files <- filter_theme(forecasts, "terrestrial_30min") %>%
-        filter_prov("prov/scores-prov.tsv", targets_file)
+  filter_prov("prov/scores-prov.tsv", targets_file)
 
-score_files <- neon4cast:::score_it(targets_file, forecast_files, dir = "scores/")
-prov::write_prov_tsv(data_in = c(targets_file, forecast_files),  data_out = score_files, provdb = "prov/scores-prov.tsv")
-        
+if(length(forecast_files) > 0){
+  score_files <- neon4cast:::score_it(targets_file, forecast_files, dir = "scores/")
+  prov::write_prov_tsv(data_in = c(targets_file, forecast_files),  data_out = score_files, provdb = "prov/scores-prov.tsv")
+}
+
 
 ## phenology
 message("Phenology...")
 targets_file <- filter_theme(targets, "phenology")
 forecast_files <- filter_theme(forecasts, "phenology") %>%
-        filter_prov("prov/scores-prov.tsv", targets_file)
-
-score_files <- neon4cast:::score_it(targets_file, forecast_files, dir = "scores/")
-prov::write_prov_tsv(data_in = c(targets_file, forecast_files),  data_out = score_files, provdb = "prov/scores-prov.tsv")
-
-
+  filter_prov("prov/scores-prov.tsv", targets_file)
+if(length(forecast_files) > 0){
+  score_files <- neon4cast:::score_it(targets_file, forecast_files, dir = "scores/")
+  prov::write_prov_tsv(data_in = c(targets_file, forecast_files),  data_out = score_files, provdb = "prov/scores-prov.tsv")
+}
 
 
 ## ticks
 message("Ticks...")
 targets_file <- filter_theme(targets, "ticks")
 forecast_files <- filter_theme(forecasts, "ticks") %>%
-        filter_prov("prov/scores-ticks-prov.tsv", targets_file)
+  filter_prov("prov/scores-ticks-prov.tsv", targets_file)
 
-score_files <- neon4cast:::score_it(targets_file, forecast_files, dir = "scores/")
-prov::write_prov_tsv(data_in = c(targets_file, forecast_files),  data_out = score_files, provdb = "prov/scores-prov.tsv")
+if(length(forecast_files) > 0){
+  score_files <- neon4cast:::score_it(targets_file, forecast_files, dir = "scores/")
+  prov::write_prov_tsv(data_in = c(targets_file, forecast_files),  data_out = score_files, provdb = "prov/scores-prov.tsv")
+}
 
 
 ################### EFI-USE ONLY -- Requires secure credentials to upload data to EFI SERVER  #######################
