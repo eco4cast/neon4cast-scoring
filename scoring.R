@@ -46,7 +46,10 @@ options("mc.cores"=2)  # using too many cores with too little RAM wil crash
 message("Aquatics ...")
 targets_file <- filter_theme(targets, "aquatics")
 targets_files <- monthly_targets(targets_file)
-forecast_files <- filter_theme(forecasts, "aquatics") %>%
+forecast_files <- filter_theme(forecasts, "aquatics")
+matched_targets <- lapply(forecast_files, match_targets, targets_file= targets_file)
+
+forecast_files <- forecast_files %>%
   filter_prov( "prov/scores-prov.tsv", targets_file)
 
 if(length(forecast_files) > 0){
@@ -99,8 +102,8 @@ if(length(forecast_files) > 0){
 message("Phenology...")
 targets_file <- filter_theme(targets, "phenology")
 targets_files <- monthly_targets(targets_file)
-forecast_files <- filter_theme(forecasts, "phenology") %>%
-  filter_prov("prov/scores-prov.tsv", targets_file)
+forecast_files <- filter_theme(forecasts, "phenology")
+matched_targets <- lapply(forecast_files, match_targets, targets_file= targets_file)
 if(length(forecast_files) > 0){
   score_files <- neon4cast:::score_it(targets_file, forecast_files, dir = "scores/")
   prov::write_prov_tsv(data_in = c(targets_file, forecast_files),  data_out = score_files, provdb = "prov/scores-prov.tsv")
