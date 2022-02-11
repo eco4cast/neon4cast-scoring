@@ -45,9 +45,10 @@ options("mc.cores"=2)  # using too many cores with too little RAM wil crash
 ## aquatics
 message("Aquatics ...")
 targets_file <- filter_theme(targets, "aquatics")
-targets_files <- monthly_targets(targets_file)
+#targets_files <- monthly_targets(targets_file)
 forecast_files <- filter_theme(forecasts, "aquatics")
-matched_targets <- lapply(forecast_files, match_targets, targets_file= targets_file)
+forecast_files <- filter_dates(forecast_files)
+#matched_targets <- lapply(forecast_files, match_targets, targets_file= targets_file)
 
 forecast_files <- forecast_files %>%
   filter_prov( "prov/scores-prov.tsv", targets_file)
@@ -60,10 +61,11 @@ if(length(forecast_files) > 0){
 
 ## beetles
 message("Beetles ...")
-#targets_file <- filter_theme(targets, "beetles")
+targets_file <- filter_theme(targets, "beetles")
 #targets_files <- monthly_targets(targets_file)
-#forecast_files <- filter_theme(forecasts, "beetles") %>%
-#  filter_prov("prov/scores-prov.tsv", targets_file)
+forecast_files <- filter_dates(forecast_files)
+forecast_files <- filter_theme(forecasts, "beetles") %>%
+  filter_prov("prov/scores-prov.tsv", targets_file)
 
 #if(length(forecast_files) > 0){
 #  score_files <- neon4cast:::score_it(targets_file, forecast_files, dir = "scores/") 
@@ -74,8 +76,10 @@ message("Beetles ...")
 ## terrestrial
 message("Terrestrial - daily interval ...")
 targets_file <- filter_theme(targets, "terrestrial_daily")
-targets_files <- monthly_targets(targets_file)
-forecast_files <- filter_theme(forecasts, "terrestrial_daily") %>%
+#targets_files <- monthly_targets(targets_file)
+forecast_files <- filter_theme(forecasts, "terrestrial_daily")
+forecast_files <- filter_dates(forecast_files)
+forecast_files <- forecast_files %>%
   filter_prov("prov/scores-prov.tsv", targets_file)
 
 if(length(forecast_files) > 0){
@@ -88,9 +92,12 @@ if(length(forecast_files) > 0){
 message("Terrestrial - 30 Min interval ...")
 
 targets_file <- filter_theme(targets, "terrestrial_30min")
-targets_files <- monthly_targets(targets_file)
-forecast_files <- filter_theme(forecasts, "terrestrial_30min") %>%
+#targets_files <- monthly_targets(targets_file)
+forecast_files <- filter_theme(forecasts, "terrestrial_30min")
+forecast_files <- filter_dates(forecast_files)
+forecast_files <- forecast_files %>%
   filter_prov("prov/scores-prov.tsv", targets_file)
+
 
 if(length(forecast_files) > 0){
   score_files <- neon4cast:::score_it(targets_file, forecast_files, dir = "scores/")
@@ -101,9 +108,12 @@ if(length(forecast_files) > 0){
 ## phenology
 message("Phenology...")
 targets_file <- filter_theme(targets, "phenology")
-targets_files <- monthly_targets(targets_file)
+#targets_files <- monthly_targets(targets_file)
 forecast_files <- filter_theme(forecasts, "phenology")
-matched_targets <- lapply(forecast_files, match_targets, targets_file= targets_file)
+forecast_files <- filter_dates(forecast_files)
+forecast_files <- forecast_files %>%
+  filter_prov("prov/scores-prov.tsv", targets_file)
+
 if(length(forecast_files) > 0){
   score_files <- neon4cast:::score_it(targets_file, forecast_files, dir = "scores/")
   prov::write_prov_tsv(data_in = c(targets_file, forecast_files),  data_out = score_files, provdb = "prov/scores-prov.tsv")
@@ -113,9 +123,11 @@ if(length(forecast_files) > 0){
 ## ticks
 message("Ticks...")
 targets_file <- filter_theme(targets, "ticks")
-targets_files <- monthly_targets(targets_file)
-forecast_files <- filter_theme(forecasts, "ticks") %>%
-  filter_prov("prov/scores-ticks-prov.tsv", targets_file)
+#targets_files <- monthly_targets(targets_file)
+forecast_files <- filter_theme(forecasts, "ticks")
+#forecast_files <- filter_dates(forecast_files)
+forecast_files <- forecast_files %>%
+  filter_prov("prov/scores-prov.tsv", targets_file)
 
 if(length(forecast_files) > 0){
   score_files <- neon4cast:::score_it(targets_file, forecast_files, dir = "scores/")

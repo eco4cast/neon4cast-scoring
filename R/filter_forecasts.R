@@ -20,3 +20,10 @@ filter_prov <- function(x, prov_tsv, target){
   keep <- !(ids %in% prov$id)
   x[keep]
 }
+
+filter_dates <- function(x, ndays = 35){
+  parsed <- unlist(stringr::str_split_fixed(basename(x), pattern = "-" , n = 5))
+  dates <- lubridate::as_date(paste(parsed[,2],parsed[,3],parsed[,4],sep = "-")) 
+  x <- x[which(dates > (Sys.Date() - lubridate::days(ndays)))]
+  return(x)
+}
